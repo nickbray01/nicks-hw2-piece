@@ -1,3 +1,4 @@
+package HW2;
 public class CyclicBarrierTest implements Runnable {
 	final static int numParties = 5;
 	static int waitCount = 0;

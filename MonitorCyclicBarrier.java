@@ -1,5 +1,6 @@
 // EID 1
 // EID 2
+package HW2;
 
 /* Use only Java monitors to accomplish the required synchronization */
 public class MonitorCyclicBarrier implements CyclicBarrier {

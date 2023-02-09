@@ -25,18 +25,52 @@ public class LinkedList {
         return(head);
     }
 
-    public void setHead(LinkedListNode newHead){
-        this.head = newHead;
+    public boolean setHead(LinkedListNode newHead){
+        boolean success = false;
+        monitorLock.lock();
+        try{
+            if(this.head == null){
+                this.head = newHead;
+                success = true;
+            }
+        }
+        finally {
+            monitorLock.unlock();
+            return(success);
+        }
     }
 
-    public boolean isFull(){
-        return(length.intValue() < maxLength);
+    public boolean isFull() {
+        // Block the isFull condition if queue is full
+        monitorLock.lock();
+        try {
+            while (length.intValue() >= maxLength) {
+                isFull.await();
+            }
+        }
+        catch(InterruptedException e){
+            System.out.println("Interrupted Exception Caught");
+        }
+        finally {
+            monitorLock.unlock();
+            return(length.intValue() >= maxLength);
+        }
     }
 
     public boolean isEmpty(){
-        if(head == null){
-            return(true);
+        //Block the isEmpty condition if queue is empty
+        monitorLock.lock();
+        try{
+            while(head == null){
+                isEmpty.await();
+            }
         }
-        return(false);
+        catch(InterruptedException e){
+            System.out.println("Interrupted Exception Caught");
+        }
+        finally{
+            monitorLock.unlock();
+            return(head == null);
+        }
     }
 }
