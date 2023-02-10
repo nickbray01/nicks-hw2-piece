@@ -39,7 +39,7 @@ public class SemaphoreCyclicBarrier implements CyclicBarrier {
         else{
             deactivate();
         }
-        return -1;
+        return barrier.availablePermits();
     }
 
     /*

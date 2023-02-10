@@ -10,10 +10,11 @@ public class LinkedList {
 
     private LinkedListNode head;
     private int maxLength;
-    public AtomicInteger length;
+    public AtomicInteger length = new AtomicInteger();
     final ReentrantLock monitorLock = new ReentrantLock();
     final Condition isFull = monitorLock.newCondition();
     final Condition isEmpty = monitorLock.newCondition();
+    final Condition usingHead = monitorLock.newCondition();
 
     public LinkedList(int length){
         this.head = null;
@@ -22,7 +23,21 @@ public class LinkedList {
     }
 
     public LinkedListNode getHead(){
-        return(head);
+        // Locks the head of the node, need to unlock/handle in PQueue
+        monitorLock.lock();
+        try{
+            while(head.lock.isLocked()){
+                usingHead.await();
+            }
+        }
+        catch(InterruptedException e){System.out.println("InterruptedException caught");}
+        finally{
+            if(head != null){
+                head.lock.lock();
+            }
+            monitorLock.unlock();
+            return(head);
+        }
     }
 
     public boolean setHead(LinkedListNode newHead){

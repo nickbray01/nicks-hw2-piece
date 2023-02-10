@@ -6,7 +6,7 @@ public class LinkedListNode {
     private int priority;
     private String name;
     public LinkedListNode next;
-    public ReentrantLock lock;
+    final ReentrantLock lock = new ReentrantLock();
 
     public LinkedListNode(String name, int priority){
         this.priority = priority;

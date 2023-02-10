@@ -2,7 +2,6 @@ package HW2;
 // nab2992
 // EID 2
 
-//todo: need to make it so when getFirst is called, LinkedList.length is decremented\
 //todo: testing lol
 
 public class PriorityQueue {
@@ -35,8 +34,15 @@ public class PriorityQueue {
 			if (n == null) {
 				LinkedListNode newNode = new LinkedListNode(name, priority);
 				if(queue.setHead(newNode)){
-					queue.isEmpty.signal();
 					queue.length.incrementAndGet();
+					queue.monitorLock.lock();
+					try{
+						queue.usingHead.signal();
+						queue.isEmpty.signal();
+					}
+					finally{
+						queue.monitorLock.unlock();
+					}
 					return(0);
 				}
 			}
@@ -50,6 +56,14 @@ public class PriorityQueue {
 						newNode.next = queue.getHead();
 						if(queue.setHead(newNode)){
 							queue.length.incrementAndGet();
+							newNode.next.lock.unlock();
+							queue.monitorLock.lock();
+							try{
+								queue.usingHead.signal();
+							}
+							finally{
+								queue.monitorLock.unlock();
+							}
 							return(0);
 						}
 					}
@@ -115,12 +129,21 @@ public class PriorityQueue {
 					n.lock.unlock();
 					return(idx);
 				}
-				idx++;
 			}
 			finally{
 				LinkedListNode next = n.next;
 				n.lock.unlock();
 				n = next;
+				if(idx==0){
+					queue.monitorLock.lock();
+					try{
+						queue.usingHead.signal();
+					}
+					finally {
+						queue.monitorLock.unlock();
+					}
+				}
+				idx++;
 			}
 		}
 		return(-1);
@@ -138,6 +161,14 @@ public class PriorityQueue {
 				queue.setHead(next);
 			}
 			finally{
+				head.lock.unlock();
+				queue.monitorLock.lock();
+				try{
+					queue.usingHead.signal();
+				}
+				finally{
+					queue.monitorLock.unlock();
+				}
 				return(head.getName());
 			}
 		}

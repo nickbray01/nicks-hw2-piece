@@ -98,6 +98,7 @@ public class PriorityQueueTest implements Runnable {
                 }
                 System.out.println("Thread2 adding post");
                 queue.add("post",8);
+                System.out.println("post success!");
             }
         });
         testThread1.start();
