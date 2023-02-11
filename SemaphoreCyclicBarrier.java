@@ -4,6 +4,7 @@ package HW2;
 
 
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /* Use only semaphores to accomplish the required synchronization */
 public class SemaphoreCyclicBarrier implements CyclicBarrier {
@@ -12,11 +13,14 @@ public class SemaphoreCyclicBarrier implements CyclicBarrier {
     // TODO Add other useful variables
     private Semaphore barrier;
     private boolean active;
+    private AtomicInteger arrivedPpl = new AtomicInteger();
 
     public SemaphoreCyclicBarrier(int parties) {
         this.parties = parties;
         // TODO Add any other initialization statements
-        this.barrier = new Semaphore(parties);
+        this.barrier = new Semaphore(0);
+        this.active = true;
+        this.arrivedPpl.set(parties);
     }
 
     /*
@@ -32,14 +36,14 @@ public class SemaphoreCyclicBarrier implements CyclicBarrier {
      */
     public int await() throws InterruptedException {
         // TODO Implement this function
+        int position = arrivedPpl.incrementAndGet();
+        if(position >= parties){
+            for(int i=0; i<parties; i++){
+                barrier.release();
+            }
+        }
         this.barrier.acquire();
-        if(this.barrier.availablePermits() > 0){
-            activate();
-        }
-        else{
-            deactivate();
-        }
-        return barrier.availablePermits();
+        return (position);
     }
 
     /*
